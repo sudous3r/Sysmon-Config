@@ -1,0 +1,499 @@
+<!--                               NOTICE: This Sysmon configuration rule has been designed to monitor and detect activities associated with APTs targeting HealthCare.                                -->
+<!--                                       It has been carefully crafted to provide comprehensive coverage of known APT tactics, techniques, and procedures commonly                                   -->
+<!--                                       observed in such attacks.                                                                                                                                   -->
+<!--      ___________                                                                                                                                                                                  -->    
+<!--     /###########\                     While this rule aims to enhance our detection capabilities and bolster our security posture against APTs, it's important to                                 -->  
+<!--    /#############\                    acknowledge that no rule or detection mechanism can provide absolute coverage. Despite our best efforts, there may exist certain blind                      --> 
+<!--   |###  _***_  ###|                   spots or evasion techniques that could potentially evade detection by this rule.                                                                            -->
+<!--   |### /  B  \ ###|                                                                                                                                                                               -->
+<!--   |### \  L  / ###|                                 _______                                                                                                                                       -->   
+<!--   |###  \_U_/  ###|                                / _____/_  ____________  __  ____  _____                                                                                                       -->   
+<!--    \#############/                                 \__ \ / / / / ____/ __  __ \/ __ \/ ___ \                                                                                                      -->
+<!--      \#########/                                   ___/ / /_/ (___  ) / / / / / /_/ / /  / /                                                                                                      -->
+<!--        \#####/                                   /_____/ \__, /____/_/ /_/ /_/\____/_/  /_/                                                                                                       -->
+<!--                                                         /____/                                       by sudous3r                                                                                  -->
+
+<!--
+    Sysmon-Config | A Sysmon configuration repository, designed specifically for HealthCare companies and organizations seeking to optimize their log monitoring practices.
+    Created: 02-May-2024
+    Source project: https://github.com/sudous3r/Sysmon-Config
+    
+    NOTE: This Sysmon configuration provided herein is designed with high verbosity to capture a wide 
+          range of system activity. However, Every company operates within a unique technological ecosystem, 
+          utilizing different software applications, configurations, and network architectures. 
+          As such, it is imperative to understand that the provided configuration serves as a starting point 
+          and may require modifications to align with the specific needs and nuances of individual environments.
+                                                                                                               -->
+
+<Sysmon schemaversion="4.90">
+
+        <HashAlgorithms>md5,sha256,IMPHASH</HashAlgorithms>
+        <CheckRevocation />
+
+        <EventFiltering>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessID, Image, FileVersion, Description, Product, Company, OriginalFileName, CommandLine, CurrentDirectory, User, LogonGuid, LogonId, TerminalSessionId, IntegrityLevel, Hashes, ParentProcessGuid, ParentProcessId, ParentImage, ParentCommandLine, ParentUser -->
+<!-- EVENT ID 1 : PROCESS CREATION [ProcessCreate]-->
+
+               <RuleGroup groupRelation="or">
+                   <ProcessCreate onmatch="include">
+                         <Image condition="contains">.dll</Image>
+                         <Image condition="contains">powershell.exe</Image>
+                         <Image condition="contains">powershell_ise.exe</Image>
+                         <Image condition="contains">cmd.exe</Image>
+                         <Image condition="contains">mshta.exe</Image>
+                         <Image condition="contains">rundll32.exe</Image>
+                         <Image condition="contains">cscript.exe</Image>
+                         <Image condition="contains">wget.exe</Image>
+                         <Image condition="contains">curl.exe</Image>
+                         <Image condition="contains">tasklist.exe</Image>                       <!-- Monitor common tools used for process enumeration -->  
+                         <Image condition="contains">taskmgr.exe</Image>                        <!-- Monitor common tools used for process enumeration -->
+                         <Image condition="contains">wmic.exe</Image>                           <!-- Monitor common tools used for process enumeration -->
+                         <Image condition="contains">pslist.exe</Image>                         <!-- Monitor common tools used for process enumeration -->
+                         <Image condition="contains">nc.exe</Image>
+                         <Image condition="contains">netcat.exe</Image>
+                         <Image condition="contains">plink.exe</Image>
+                         <Image condition="contains">python.exe</Image>
+                         <Image condition="contains">perl.exe</Image>
+                         <Image condition="contains">iexplore.exe</Image>
+                         <Image condition="contains">chrome.exe</Image>
+                         <Image condition="contains">firefox.exe</Image>
+                         <Image condition="contains">msedge.exe</Image>
+                         <Image condition="contains">explorer.exe</Image>
+                         <Image condition="contains">sethc.exe</Image>                           <!-- Sticky Keys: sethc.exe - Pressing the Shift key five times to enable Sticky Keys accessibility feature -->
+                         <Image condition="contains">utilman.exe</Image>                         <!-- Utility Manager: utilman.exe - Launches Utility Manager, which provides accessibility features -->
+                         <Image condition="contains">osk.exe</Image>                             <!-- On-Screen Keyboard: osk.exe - Provides an on-screen keyboard for users with mobility impairments -->
+                         <Image condition="contains">narrator.exe</Image>                        <!-- Narrator: narrator.exe - A screen reader utility for users with visual impairments -->
+                         <Image condition="contains">dsget.exe</Image>
+                         <Image condition="contains">wscript.exe</Image>
+                         <Image condition="contains">net.exe</Image>
+                         <Image condition="contains">mimikatz</Image>
+                         <Image condition="contains">wevtutil</Image>
+                         <Image condition="contains">python</Image>
+
+                         <Image condition="contains any">transfernow;transferxl;wetransfer;onedrive</Image>
+
+                         <Image condition="is">svchost.exe</Image>
+                         <Image condition="is">nmap.exe</Image>                                  <!-- Monitor for processes commonly associated with network service discovery -->
+                         <Image condition="is">masscan.exe</Image>                               <!-- Monitor for processes commonly associated with network service discovery -->
+                         <Image condition="is">sigcheck.exe</Image>
+                         <Image condition="is">lsass.exe</Image>
+                         <Image condition="is">InstallUtil.exe</Image>
+                         <Image condition="is">ipconfig.exe</Image>
+                         <Image condition="is">netstat.exe</Image>
+                         <Image condition="is">ss.exe</Image>
+                         <Image condition="is">wmiprvse.exe</Image>
+                         <Image condition="is">odbcconf.exe</Image>
+                         <Image condition="is">csvde.exe</Image> 
+                         
+                         <Image condition="end with">.dll</Image>
+                         <Image condition="end with">.ps1</Image>
+             
+                         <ParentImage condition="is">powershell.exe</ParentImage>
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <ParentImage condition="is">mshta.exe</ParentImage>
+                         <ParentImage condition="is">InstallUtil.exe</ParentImage>
+                         <ParentImage condition="is">PsExec.exe</ParentImage>
+
+                         <CommandLine condition="contains">-a</CommandLine>
+                         <CommandLine condition="contains">-n</CommandLine>
+                         <CommandLine condition="contains">/s</CommandLine>
+                         <CommandLine condition="contains">/u</CommandLine>
+                         <CommandLine condition="contains">/domain</CommandLine>
+                         <CommandLine condition="contains">-eval</CommandLine>
+                         <CommandLine condition="contains">-exec</CommandLine>
+                         <CommandLine condition="contains">-expression</CommandLine>
+                         <CommandLine condition="contains">payload</CommandLine>
+                         <CommandLine condition="contains">Invoke</CommandLine>
+                         <CommandLine condition="contains">Get-ChildItem</CommandLine>
+                         <CommandLine condition="contains">dir</CommandLine>
+                         <CommandLine condition="contains">del /f</CommandLine>
+                         <CommandLine condition="contains">Remove-Item -Force</CommandLine>
+                         <CommandLine condition="contains">copy</CommandLine>                                    <!-- Filter for command-line activity containing commands indicative of tool transfer --> 
+                         <CommandLine condition="contains">xcopy</CommandLine>                                   <!-- Filter for command-line activity containing commands indicative of tool transfer --> 
+                         <CommandLine condition="contains">SetWindowsHookEx</CommandLine>                        <!-- Filter for command-line activity containing API calls indicative of keylogging -->
+                         <CommandLine condition="contains">GetAsyncKeyState</CommandLine>                        <!-- Filter for command-line activity containing API calls indicative of keylogging -->
+                         <CommandLine condition="contains">rename</CommandLine>
+                         <CommandLine condition="contains">mv</CommandLine>
+                         <CommandLine condition="contains">ping</CommandLine>
+                         <CommandLine condition="contains">-p</CommandLine>
+                         <CommandLine condition="contains">-sV</CommandLine>
+                         <CommandLine condition="contains">c:\windows\system32\config\SAM</CommandLine>
+                         <CommandLine condition="contains">C:\Windows\System32\config\SYSTEM</CommandLine>
+                         <CommandLine condition="contains">WriteProcessMemory</CommandLine>                      <!-- Filter for command-line activity containing API calls indicative of process hollowing -->
+                         <CommandLine condition="contains">NtUnmapViewOfSection</CommandLine>                    <!-- Filter for command-line activity containing API calls indicative of process hollowing -->
+                         <CommandLine condition="contains">/logfile=</CommandLine>
+                         <CommandLine condition="contains">/all</CommandLine>
+                         <CommandLine condition="contains">net user</CommandLine>                                 <!-- filter for command-line activity containing commands or PowerShell cmdlets indicative of trusted relationship establishment -->
+                         <CommandLine condition="contains">net1 user</CommandLine>
+                         <CommandLine condition="contains">net view</CommandLine>
+                         <CommandLine condition="contains">net start</CommandLine>
+                         <CommandLine condition="contains">net user username \password</CommandLine>
+                         <CommandLine condition="contains">net accounts</CommandLine>
+                         <CommandLine condition="contains">net group</CommandLine>
+                         <CommandLine condition="contains">net localgroup</CommandLine>
+                         <CommandLine condition="contains">New-Object System.Net.WebClient</CommandLine>         <!-- filter for command-line activity containing commands or PowerShell cmdlets indicative of trusted relationship establishment --> 
+                         <CommandLine condition="contains">wmic</CommandLine>
+                         <CommandLine condition="contains">-encode</CommandLine>
+                         <CommandLine condition="contains">-enc</CommandLine>
+                         <CommandLine condition="contains">-w hidden</CommandLine>                               <!-- To conceal PowerShell windows by setting the WindowStyle parameter to hidden --> 
+                         <CommandLine condition="contains">Invoke-</CommandLine>
+                         <CommandLine condition="contains">Get-</CommandLine>
+                         <CommandLine condition="contains">Install-SSP</CommandLine>                             <!-- Persistence module can be used to establish by installing a SSP DLL -->
+                         <CommandLine condition="contains">Find-</CommandLine>                                   <!-- AntivirusBypass module can be used to locate single byte anti-virus signatures -->
+                         <CommandLine condition="contains">certutil -decode</CommandLine>
+                         <CommandLine condition="contains">GetModuleFileName</CommandLine>
+                         <CommandLine condition="contains">CreateFile</CommandLine>
+                         <CommandLine condition="contains">ReadFile</CommandLine>
+                         <CommandLine condition="contains">certutil -addstore -f -user ROOT ProgramData</CommandLine>            <!-- Can be used to install browser root certificates as a precursor to performing Adversary-in-the-Middle between connections -->
+                         <CommandLine condition="contains">C:\Windows\Microsoft.NET\</CommandLine>
+                         <CommandLine condition="contains">arp</CommandLine>
+
+                 <Rule name="SystemBinaryProxyExecution" groupRelation="and">                    <!-- Monitor for the execution of regsvr32.exe -->
+                         <ParentImage condition="contains">cmd.exe</ParentImage>
+                         <Image condition="is">regsvr32.exe</Image>
+                         <CommandLine condition="contains any">/s;/u</CommandLine>               <!-- Monitor for regsvr32.exe being executed with the /s (silent) and the /u (unregister) flag -->
+                         </Rule>
+                 <Rule name="ClearCommandHistory" groupRelation="and">
+                         <ParentImage condition="is">poweshell.exe</ParentImage>
+                         <CommandLine condition="contains">-c Clear-History</CommandLine>
+                         </Rule>
+                 <Rule name="ClearCommandHistory" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <CommandLine condition="contains">/c del %USERPROFILE%\.bash_history</CommandLine>
+                         </Rule>
+                 <Rule name="UNICORN" groupRelation="and">                                                             <!-- Unicorn is a simple tool for using a PowerShell downgrade attack and inject shellcode straight into memory -->
+                         <ParentImage condition="is">powershell.exe</ParentImage>
+                         <Image condition="contains any">unicorn.py;abc.bat;powershell_attack.txt</Image>
+                         </Rule>
+                 <Rule name="SUGARDUMP" groupRelation="or">
+                         <Image condition="contains any">ChromeRecovery.exe;77624fb7624c972613e5d62604728b20;CrashReporter.exe</Image>                <!-- SUGARDUMP is a proprietary browser credential harvesting tool -->
+                         </Rule>
+                 <Rule name="SURUSH" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>                                                          <!-- SUGARUSH is a small custom backdoor that can establish a reverse shell over TCP to a hard coded C2 address -->
+                         <Image condition="contains any">sugarush;BTH3.exe</Image>
+                         </Rule>
+                 <Rule name="Valid Accounts: Cloud Accounts T1078.004" groupRelation="and">
+                         <ParentImage condition="is">powershell.exe</ParentImage>
+                         <CommandLine condition="contains">ConvertTo-SecureString -AsPlainText -Force</CommandLine>
+                         </Rule>
+                 <Rule name="Windows Management Instrumentation T1047.001" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <CommandLine condition="contains">wmic useraccount get /ALL /format:</CommandLine>
+                         </Rule>
+                 <Rule name="Windows Management Instrumentation T1047.002" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <CommandLine condition="contains">wmic process get caption,executablepath,commandline /format:</CommandLine>
+                         </Rule>
+                 <Rule name="Ingress Tool Transfer T1105.009" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <CommandLine condition="contains">bitsadmin.exe</CommandLine>
+                         </Rule>
+                 <Rule name="Ingress Tool Transfer T1105.011" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <CommandLine condition="contains"> /c pushd \\localhost\C$ * echo var fileObject</CommandLine>
+                         </Rule>         
+
+                  </ProcessCreate>
+             </RuleGroup>
+   
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime, PreviousCreationUtcTime, User -->  
+<!-- EVENT ID 2 : FILE CREATION TIME CHANGED [FileCreateTime]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileCreateTime onmatch="include" />
+
+             </RuleGroup>   
+
+<!-- Data: Rulename, UtcTime, ProcessGuid, ProcessId, Image, User, Protocol, Initiated, SourceIsIpv6, SourceIp, SourceHostname, SourcePort, SourcePortName, DestinationIp, DestinationHostname, DestinationPort, DestinationPortName -->
+<!-- EVENT ID 3 : NETWORK CONNECTION DETECTED [NetworkConnect]-->
+
+               <RuleGroup groupRelation="or">
+                   <NetworkConnect onmatch="include">
+                         <DestinationPort condition="is">22</DestinationPort>
+                         <DestinationPort condition="is">25</DestinationPort>                  <!-- SMTP port -->
+                         <DestinationPort condition="is">80</DestinationPort>
+                         <DestinationPort condition="is">110</DestinationPort>                 <!-- POP3 port -->      
+                         <DestinationPort condition="is">135</DestinationPort>                 <!-- RPC port -->
+                         <DestinationPort condition="is">143</DestinationPort>                 <!-- IMAP port --> 
+                         <DestinationPort condition="is">443</DestinationPort>
+                         <DestinationPort condition="is">445</DestinationPort>                 <!-- SMB port -->
+                         <DestinationPort condition="is">587</DestinationPort>                 <!-- SMTP Submission port -->
+                         <DestinationPort condition="is">993</DestinationPort>                 <!-- IMAPS port -->
+                         <DestinationPort condition="is">995</DestinationPort>                 <!-- POP3S port --> 
+                         <DestinationPort condition="is">3389</DestinationPort>                <!-- RDP port -->
+                         <DestinationPort condition="is">4585</DestinationPort>                <!-- Used for C2 -->
+                         <DestinationPort condition="is">5985</DestinationPort>                <!-- WinRM port -->
+                         <DestinationPort condition="is">8080</DestinationPort>
+                         <DestinationPort condition="is">8443</DestinationPort>                <!-- non-standard port -->
+                         <DestinationPort condition="is">9001</DestinationPort>                <!-- Commonly used for TOR -->
+                         <DestinationPort condition="is">9030</DestinationPort>                <!-- Commonly used for TOR -->
+                         <DestinationPort condition="is">31800</DestinationPort>               <!-- non-standard port -->
+                         <DestinationPort condition="is">31900</DestinationPort>               <!-- non-standard port -->
+
+                         <Image condition="contains">iexplore.exe</Image>
+                         <Image condition="contains">chrome.exe</Image>
+                         <Image condition="contains">firefox.exe</Image>
+                         <Image condition="contains">msedge.exe</Image>
+                         <Image condition="contains">powershell.exe</Image>
+                         <Image condition="contains">cmd.exe</Image>
+                         <Image condition="contains">cscript.exe</Image>
+                         <Image condition="contains">wget.exe</Image>
+                         <Image condition="contains">curl.exe</Image>
+                         <Image condition="contains">nc.exe</Image>
+                         <Image condition="contains">netcat.exe</Image>
+                         <Image condition="contains">plink.exe</Image>
+                         <Image condition="contains">mshta.exe</Image>
+                         <Image condition="contains">svchost.exe</Image>
+                         <Image condition="contains">explorer.exe</Image>
+                         <Image condition="contains">net.exe</Image>
+                         <Image condition="contains">wmic.exe</Image>
+                         <Image condition="contains">proxy</Image>
+                         <Image condition="contains">tor</Image>
+
+                  </NetworkConnect>
+             </RuleGroup>
+
+<!-- Data UtcTime, State, Version, SchemaVersion -->
+<!-- EVENT ID 4 : SYSMON SERVICE STATE CHANGED [SysmonService]-->
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, User -->
+<!-- EVENT ID 5 : PROCESS TERMINATED [ProcessTerminate]-->
+
+               <RuleGroup groupRelation="or">
+                   <ProcessTerminate onmatch="include" />
+
+             </RuleGroup>   
+
+<!-- Data: RuleName, UtcTime, ImageLoaded, Hashes, Signed, Signature, SignatureStatus -->
+<!-- EVENT ID 6 : DRIVER LOADED [DriverLoad]-->
+
+               <RuleGroup groupRelation="or">
+                   <DriverLoad onmatch="include" />
+
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, ImageLoaded, FileVersion, Description, Product, Company, OriginalFileName, Hashes, Signed, Signature, SignatureStatus, User -->
+<!-- EVENT ID 7 : DLL (IMAGE) LOADED [ImageLoad]-->
+
+               <RuleGroup groupRelation="or">
+                   <ImageLoad onmatch="include">
+                         <Image condition="contains">powershell.exe</Image>
+                         <Image condition="contains">GdiPlus.dll</Image>
+
+                         <Image condition="end with">.exe</Image>
+
+                         <OriginalFileName condition="contains">.dll</OriginalFileName>
+                         <OriginalFileName condition="contains">C:\Users\Public\Documents\</OriginalFileName>
+                         <OriginalFileName condition="contains">C:\Windows\System32\</OriginalFileName>
+                         <OriginalFileName condition="contains">.dll</OriginalFileName>
+                         <OriginalFileName condition="is">.\</OriginalFileName>
+                         <OriginalFileName condition="is">.\%username%\AppData\Local\Temp\</OriginalFileName>
+
+                  </ImageLoad>
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, SourceProcessGuid, SourceProcessId, SourceImage, TargetProcessGuid, TargetProcessId, TargetImage, NewThreadId, StartAddress, StartModule, StartFunction, SourceUser, TargetUser -->
+<!-- EVENT ID 8 : REMOTE THREAD CREATED [CreateRemoteThread]-->
+
+               <RuleGroup groupRelation="or">
+                   <CreateRemoteThread onmatch="include" />
+
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, Device, User -->
+<!-- EVENT ID 9 : RAW DISK ACCESS [RawAccessRead]-->
+
+               <RuleGroup groupRelation="or">
+                   <RawAccessRead onmatch="include" />
+
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, SourceProcessGUID, SourceProcessId, SourceThreatId, SourceImage, TargetProcessGUID, TargetProcessId, TargetImage, GrantedAccess, CallTrace, SourceUser, TargetUser -->
+<!-- EVENT ID 10 : INTER-PROCESS ACCESS [ProcessAccess]-->
+
+               <RuleGroup groupRelation="or">
+                    <ProcessAccess onmatch="include" />
+
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, TargetFileName. CreationUtcTime, User -->
+<!-- EVENT ID 11 : FILE CREATED [FileCreate]-->
+
+               <RuleGroup groupRelation="or">
+                    <FileCreate onmatch="include">
+                         <Image condition="contains">cmd.exe</Image>
+                         <Image condition="contains">powershell.exe</Image>
+                         <Image condition="end with">.rar</Image>
+                         <Image condition="end with">.tar</Image>
+                         <Image condition="end with">.7z</Image>
+                         <Image condition="end with">.ps1</Image>
+                         <Image condition="end with">.doc</Image>
+                         <Image condition="end with">.docx</Image>
+                         <Image condition="end with">.xls</Image>
+                         <Image condition="end with">.lnk</Image>
+                         <Image condition="end with">.iso</Image>
+                         <Image condition="end with">.dll</Image>
+
+                         <TargetFilename condition="end with">.enc</TargetFilename>                          <!-- Monitor for files commonly associated with encrypted or encoded data -->
+                         <TargetFilename condition="end with">.encoded</TargetFilename>                      <!-- Monitor for files commonly associated with encrypted or encoded data --> 
+                         <TargetFilename condition="end with">.dll</TargetFilename>
+                         <TargetFilename condition="end with">.exe</TargetFilename>
+                         <TargetFilename condition="end with">.xor</TargetFilename>
+                         <TargetFilename condition="end with">.rsa2</TargetFilename>
+                         <TargetFilename condition="end with">.rc4</TargetFilename>
+                         <TargetFilename condition="end with">.vbs</TargetFilename>
+
+                  </FileCreate>
+             </RuleGroup>
+
+<!-- Data: RuleName, EventType, UtcTime, ProcessGuid, ProcessId, Image, TargetObject, User, Details, NewName -->             
+<!-- EVENT ID 12 & 13 & 14 : REGISTRY MODIFICATION [RegistryEvent]-->
+         <!--EVENT 12: "Registry object added or deleted"-->
+	     <!--EVENT 13: "Registry value set"-->
+	     <!--EVENT 14: "Registry objected renamed"-->
+
+               <RuleGroup groupRelation="or">
+                    <RegistryEvent onmatch="include">
+                         <TargetObject condition="contains">Run</TargetObject>
+                         <TargetObject condition="contains">Powershell</TargetObject>
+                         <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\Uninstall</TargetObject>                 <!-- Monitoring changes in uninstall registry keys, where indicators may be removed -->             
+                         <TargetObject condition="contains">Software\Microsoft\Outlook</TargetObject>                                          <!-- Outlook registry keys -->
+                         <TargetObject condition="contains">Software\Microsoft\Exchange</TargetObject>                                         <!-- Exchange registry keys -->               
+                         <TargetObject condition="contains">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\</TargetObject>
+                         <TargetObject condition="contains">HKEY_CURRENT_USER\Software\Microsoft\Office\\Excel\Security\AccessVBOM\</TargetObject>
+                         <TargetObject condition="contains">HKEY_CURRENT_USER\Software\Microsoft\Office\\Excel\Security\AccessVBOM\</TargetObject>
+                         <TargetObject condition="contains">HKEY_CLASSES_ROOT\Applications\VMwareHostOpen.exe</TargetObject>
+
+                         <Details condition="contains">powershell.exe</Details>
+                         <Details condition="contains">cmd.exe</Details>
+                         <Details condition="contains">cscript.exe</Details>
+                         <Details condition="contains">DisplayName</Details>                                    <!-- Monitoring changes in DisplayName values, which may indicate attempts to remove tool indicators -->     
+                         <Details condition="contains">Deleted</Details>                                        <!-- Monitor for deletion events -->
+
+                     <Rule name="HiddenWindowCreation" groupRelation="and">
+                         <TargetObject condition="contains">\\WindowMetrics\\IconSpacing</TargetObject>
+                         <Details condition="contains">-7395</Details>   
+                         </Rule>                        
+
+                  </RegistryEvent>
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime, Hash, Contents, User -->
+<!-- EVENT ID 15 : ALTERNATE DATA STREAM CREATED [FileCreateStreamHash]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileCreateStreamHash onmatch="include">
+                         <Image condition="contains">powershell.exe</Image>
+                         <Image condition="contains">cmd.exe</Image>
+                         <Image condition="contains">cscript.exe</Image>
+                         <Image condition="contains">php.exe</Image>
+
+                         <TargetFilename condition="end with">.exe</TargetFilename>
+                         <TargetFilename condition="end with">.dll</TargetFilename>
+                         <TargetFilename condition="end with">.ps1</TargetFilename>
+                         <TargetFilename condition="end with">.bat</TargetFilename>
+                         <TargetFilename condition="end with">.vbs</TargetFilename>
+                         <TargetFilename condition="end with">.php</TargetFilename>
+                         <TargetFilename condition="end with">.txt</TargetFilename>
+                         <TargetFilename condition="end with">.log</TargetFilename>                       <!-- Monitor for the creation of files commonly used for GUI input capture -->
+
+                  </FileCreateStreamHash>
+             </RuleGroup>
+
+<!-- Data: UtcTime, Configuration, ConfigurationFileHash -->
+<!-- EVENT ID 16 : SYSMON CONFIGURATION CHANGE--> 
+
+<!-- Data: RuleName, EventType, UtcTime, ProcessGuid, ProcessId, PipeName, Image, User -->
+<!-- EVENT ID 17 & 18 : PIPE CREATED / PIPE CONNECTED [PipeEvent]-->
+         <!--EVENT 17: "Pipe Created"-->
+	     <!--EVENT 18: "Pipe Connected"-->
+
+               <RuleGroup groupRelation="or">
+                   <PipeEvent onmatch="include">
+                         <PipeName condition="contains">\mswmp</PipeName> 
+
+                  </PipeEvent>
+             </RuleGroup>
+
+<!-- Data: RuleName, EventType, UtcTime, Operation, User, EventNamespace, Name, Query, Type, Destination, Consumer, Filter -->
+<!-- EVENT ID 19 & 20 & 21 : WMI EVENT MONITORING [WmiEvent]-->
+         <!--EVENT 19: "WmiEventFilter activity detected"-->
+	     <!--EVENT 20: "WmiEventConsumer activity detected"-->
+	     <!--EVENT 21: "WmiEventConsumerToFilter activity detected"-->
+
+               <RuleGroup groupRelation="or">
+                   <WmiEvent onmatch="include">
+                         <Operation condition="contains">CreateInstanceAsync</Operation>
+                         <Operation condition="contains">ExecMethod</Operation>
+
+                  </WmiEvent>
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, QueryName, QueryResults, Image, User -->
+<!-- EVENT ID 22 : DNS QUERY [DnsQuery]-->
+
+               <RuleGroup groupRelation="or">
+                   <DnsQuery onmatch="include" />
+
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFileName, Hashes, IsExecutable, Archived -->
+<!-- EVENT ID 23 : FILE DELETE [FileDelete]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileDelete onmatch="include" />
+
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, Session, ClientInfo, Hashes, Archived, User -->
+<!-- EVENT ID 24 : CLIPBOARD CHANGE [ClipboardChange]-->
+
+               <RuleGroup groupRelation="or">
+                   <ClipboardChange onmatch="include" />
+
+              </RuleGroup>
+
+<!-- RuleName, UtcTime, ProcessGuid, ProcessId, Image, Type, User -->
+<!-- EVENT ID 25 : PROCESS TAMPERING [ProcessTampering]-->
+
+               <RuleGroup groupRelation="or">
+                   <ProcessTampering onmatch="include" />
+
+              </RuleGroup> 
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFileName, Hashes, IsExecutable -->
+<!-- EVENT ID 26 : FILE DELETE AND OVERWRITE [FileDeleteDetected]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileDeleteDetected onmatch="include" /> 
+                
+              </RuleGroup> 
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFileName, Hashes -->
+<!-- EVENT ID 27 : FILE BLOCK EXECUTABLE AND OVERWRITE [FileBlockExecutable]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileBlockExecutable onmatch="include" />
+
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFileName, Hashes, IsExecutable -->
+<!-- EVENT ID 28 : FILEBLOCK SHREDDING [FileBlockShredding]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileBlockShredding onmatch="include" />
+
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFileName, Hashes -->
+<!-- EVENT ID 29 : FILE EXECUTABLE DETECTED : [FileExecutableDetected]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileExecutableDetected onmatch="include" />
+
+              </RuleGroup>    
+                          
+
+    </EventFiltering>
+</Sysmon>                     
