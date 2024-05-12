@@ -1,0 +1,727 @@
+<!--                               NOTICE: This Sysmon configuration rule has been designed to monitor and detect activities associated with APTs targeting Financial companies.          -->
+<!--                                       It has been carefully crafted to provide comprehensive coverage of known APT tactics, techniques, and procedures commonly                      -->
+<!--                                       observed in such attacks.                                                                                                                      -->
+<!--      ___________                                                                                                                                                                     -->    
+<!--     /###########\                     While this rule aims to enhance our detection capabilities and bolster our security posture against APTs, it's important to                    -->  
+<!--    /#############\                    acknowledge that no rule or detection mechanism can provide absolute coverage. Despite our best efforts, there may exist certain blind         --> 
+<!--   |###  _***_  ###|                   spots or evasion techniques that could potentially evade detection by this rule.                                                               -->
+<!--   |### /  B  \ ###|                                                                                                                                                                  -->
+<!--   |### \  L  / ###|                                 _______                                                                                                                          -->   
+<!--   |###  \_U_/  ###|                                / _____/_  ____________  __  ____  _____                                                                                          -->   
+<!--    \#############/                                 \__ \ / / / / ____/ __  __ \/ __ \/ ___ \                                                                                         -->
+<!--      \#########/                                   ___/ / /_/ (___  ) / / / / / /_/ / /  / /                                                                                         -->
+<!--        \#####/                                   /_____/ \__, /____/_/ /_/ /_/\____/_/  /_/                                                                                          -->
+<!--                                                         /____/                                by sudous3r                                                                            -->
+
+<!--
+    Sysmon-Config | A Sysmon configuration repository, designed specifically for Financial companies and organizations seeking to optimize their log monitoring practices.
+    Created: 02-May-2024
+    Source project: https://github.com/sudous3r/Sysmon-Config
+    
+    NOTE: This Sysmon configuration provided herein is designed with high verbosity to capture a wide 
+          range of system activity. However, Every company operates within a unique technological ecosystem, 
+          utilizing different software applications, configurations, and network architectures. 
+          As such, it is imperative to understand that the provided configuration serves as a starting point 
+          and may require modifications to align with the specific needs and nuances of individual environments.
+                                                                                                               -->
+
+<Sysmon schemaversion="4.90">
+
+        <HashAlgorithms>md5,sha256,IMPHASH</HashAlgorithms>
+        <CheckRevocation />   <!-- Check loaded drivers, log if their code-signing certificate has been revoked, in case malware stole one to sign a kernel driver -->
+
+        <EventFiltering>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessID, Image, FileVersion, Description, Product, Company, OriginalFileName, CommandLine, CurrentDirectory, User, LogonGuid, LogonId, TerminalSessionId, IntegrityLevel, Hashes, ParentProcessGuid, ParentProcessId, ParentImage, ParentCommandLine, ParentUser -->
+<!-- EVENT ID 1 : PROCESS CREATION [ProcessCreate]-->
+
+               <RuleGroup groupRelation="or">
+                   <ProcessCreate onmatch="include">
+                        <Image condition="contains">cmd.exe</Image>
+                        <Image condition="contains">powershell.exe</Image>
+                        <Image condition="contains">powershell_ise.exe</Image>
+                        <Image condition="contains">wscript.exe</Image>
+                        <Image condition="contains">cscript.exe</Image>
+                        <Image condition="contains">bash.exe</Image>
+                        <Image condition="contains">wscript.exe</Image>       <!-- Detects the use of Windows Script Host -->
+                        <Image condition="contains">cscript.exe</Image>       <!-- Detects the use of CScript -->
+                        <Image condition="contains">pwsh_ise.exe</Image>
+                        <Image condition="contains">compiler</Image>
+                        <Image condition="contains">debugger</Image>
+                        <Image condition="contains">obfuscator</Image>
+                        <Image condition="contains">iisexplore.exe</Image>
+                        <Image condition="contains">%SYSTEMROOT%\system32\inetsrv\*</Image>
+                        <Image condition="contains">PowerSploit.exe</Image>
+                        <Image condition="contains">tightvnc</Image>                <!-- TightVNC is a free and open-source remote desktop software server and client application for Linux and Windows --> 
+                        <Image condition="contains">nc.exe</Image>
+                        <Image condition="contains">curl.exe</Image>
+                        <Image condition="contains">wget.exe</Image>
+                        <Image condition="contains">socat.exe</Image>
+                        <Image condition="contains">svchost.exe</Image>
+                        <Image condition="contains">services.exe</Image>
+                        <Image condition="contains">sc.exe</Image>                   <!-- Detects the use of sc.exe for service management -->
+                        <Image condition="contains">windowsupdater.exe</Image>       <!-- Detects processes with a name similar to "wuauclt.exe" but with a different name -->
+                        <Image condition="contains">mshta.exe</Image>   
+                        <Image condition="contains">certutil</Image>
+                        <Image condition="contains">lsass.exe</Image>                <!-- Detects access to the Local Security Authority Subsystem Service (LSASS) process -->    
+                        <Image condition="contains">outlook.exe</Image>
+                        <Image condition="contains">winword.exe</Image>
+                        <Image condition="contains">excel.exe</Image>
+                        <Image condition="is">pwsh.exe</Image>
+                        <Image condition="is">dsget.exe</Image>                      <!-- Detects the use of the 'dsget' command-line tool -->
+                        <Image condition="is">dsquery.exe</Image>                    <!-- Detects the use of the 'dsquery' command-line tool -->
+                        <Image condition="is">wmiexec.exe</Image>                    <!-- Detects the use of WMIExec tool -->
+                        <Image condition="is">audiodg.exe</Image>
+                        <Image condition="contains">TeamViewer.exe</Image>
+                        <Image condition="contains">AnyDesk.exe</Image>
+                        <Image condition="contains">AmmyyAdmin.exe</Image>
+                        <Image condition="contains">SnippingTool.exe</Image>         <!-- Detects the use of Snipping Tool for screen capture -->
+                        <Image condition="contains">Greenshot.exe</Image>            <!-- Detects the use of Greenshot for screen capture -->
+                        <Image condition="contains">iexplore.exe</Image>
+                        <Image condition="contains">msiexec.exe</Image>              <!-- Detects the use of Windows Installer for software installation -->
+                        <Image condition="contains">rundll32.exe</Image>
+                        <Image condition="contains">whoami.exe</Image>
+                        <Image condition="contains">net.exe</Image>
+                        <Image condition="contains">explorer.exe</Image>
+                        <Image condition="contains">taskmgr.exe</Image>
+                        <Image condition="contains">wce.exe</Image>                  <!-- Windows Credential Editor --> 
+                        <Image condition="contains">user32.dll</Image>               <!-- Detects processes making API calls related to user activity checks -->
+                        <Image condition="contains">kernel32.dll</Image>             <!-- Detects processes making API calls related to user activity checks -->
+                        <Image condition="contains">advapi32.dll</Image>             <!-- Detects processes making API calls related to user activity checks -->
+                        <Image condition="contains">ntdsutil.exe</Image>             <!-- Detects the use of ntdsutil.exe for NTDS database manipulation -->
+                        <Image condition="contains">esentutl.exe</Image>             <!-- Detects the use of esentutl.exe for NTDS database manipulation -->
+                        <Image condition="contains">ntds.dit</Image>                 <!-- Detects access to the NTDS.dit file -->
+                        <Image condition="contains">KeyLogger</Image>                <!-- Detects the presence of a keylogger process -->
+                        <Image condition="contains">7z.exe</Image>                   <!-- Detect usage of 7-Zip utility -->
+                        <Image condition="contains">winrar.exe</Image>               <!-- Detect usage of WinRAR utility -->
+                        <Image condition="contains">winzip32.exe</Image>             <!-- Detect usage of WinZip utility -->
+                        <Image condition="contains">psexec</Image>
+                        <Image condition="contains">reg.exe</Image>
+                        <Image condition="contains any">pwdump;pwdump7</Image>       <!-- Dumps the password database of an NT machine that is held in the NT registry -->
+                        <Image condition="contains">kill.bat</Image>                 <!-- Script to disable security tools -->
+                        <Image condition="contains">sdelete</Image>                  <!-- SDelete allows you to delete one or more files and/or directories, or to cleanse the free space on a logical disk -->
+                        <Image condition="contains">incognito.exe</Image>
+                        <Image condition="contains">attrib.exe</Image>
+                        <Image condition="contains">msbuild.exe</Image>                    <!-- Detect usage of MSBuild for compiling malware -->
+                        <Image condition="contains">csc.exe</Image>                        <!-- Detect usage of csc.exe for compiling malware -->
+                        <Image condition="contains">securityaccountmanager.dll</Image>     <!-- Detect usage of Security Account Manager (SAM) library -->
+                        <Image condition="contains">wmic.exe</Image>                       <!-- Detect execution of wmic.exe -->
+                        <Image condition="contains">hostname.exe</Image>                   <!-- Detect execution of hostname.exe -->
+                        <Image condition="contains">nltest.exe</Image>                     <!-- Detect creation of processes using nltest.exe -->
+                        <Image condition="contains">plink</Image>                          <!-- Detect Plink utility to tunnel RDP back to C2 infrastructure -->
+
+                        <OriginalFileName condition="contains any">rawpos;.%2F.%2Ftests%2FfiveMal%2F0A06948F0EB5866216759EC69B315CED;testMal.exe;SPGManagerService.exe</OriginalFileName>     <!-- RawPOS -->
+                        <OriginalFileName condition="contains any">adfind.exe;AdFind.exe</OriginalFileName>                                                                                   <!-- AdFind--> 
+                        <OriginalFileName condition="contains any">flawedammyy.exe;flawedammyrat.exe;0badc3d4211c69b1b8b75c98c9016567.virus</OriginalFileName>                                <!-- FlawedAmmy -->
+                        <OriginalFileName condition="contains any">frameworkpos.exe;attsvc.exe</OriginalFileName>                                         <!-- FrameworkPOS -->     
+                        <OriginalFileName condition="contains any">grimagent;72a6.exe</OriginalFileName>                                                  <!-- GrimAgent-->
+                        <OriginalFileName condition="contains any">lockergoga;tgytutrc;SampleC.exe;tgytutrc412.exe;tgytutrc2286.exe;c97d9bbc80b573bdeeda3812f4d00e5183493dd0d5805e2508728f65977dda15.exe;LockerGoga.exe;LockerGoga.bin;Lockergoga.exe;LockerGoga_Norsk-Hydro.exe;Trojan.Ransom.LockerGoga.exe</OriginalFileName>        <!-- Lockergoga -->
+                        <OriginalFileName condition="contains any">maze;979723e1ba053b0c3470314471ab99d3-3.exe</OriginalFileName>                         <!-- Maze -->
+                        <OriginalFileName condition="contains any">more_eggs;zlib1.dll;f8ec93b7e4e627d7faab1f3e63c40b5c.virus</OriginalFileName>          <!-- more_eggs -->
+                        <OriginalFileName condition="contains any">ryuk;elevation_service_exe;elevation_service.exe</OriginalFileName>                    <!-- Ryuk -->
+                        <OriginalFileName condition="contains">18a0e0ff048e726e42ad0475f5205d6f16727131523b4877a549cb1b92792e94</OriginalFileName>        <!-- Boostwrite -->
+                        <OriginalFileName condition="contains any">447047.dll;WinBio.dll</OriginalFileName>                                               <!-- BioLoad (aka Boostwrite) -->
+                        <OriginalFileName condition="contains">carbanak</OriginalFileName>
+                        <OriginalFileName condition="contains">jssloader</OriginalFileName>
+                        <OriginalFileName condition="contains">sdbinst</OriginalFileName>
+                        <OriginalFileName condition="contains">dsquery.exe</OriginalFileName>
+                        <OriginalFileName condition="is">PDFSuite2021Installer.exe</OriginalFileName>      <!-- Revil -->
+                        <OriginalFileName condition="contains">revil</OriginalFileName>
+                        <OriginalFileName condition="contains">powersrc.exe</OriginalFileName>
+                        <OriginalFileName condition="contains">exploit</OriginalFileName>
+                        <OriginalFileName condition="contains any">metasploit;f8988450dfba7da60316811bea1660e78bff226468605699917a3d7292c09754</OriginalFileName>
+                        <OriginalFileName condition="contains any">mimikatz.exe;blbhbiz.exe</OriginalFileName>
+
+                        <CommandLine condition="contains">tracert</CommandLine>
+                        <CommandLine condition="contains">ipconfig</CommandLine>
+                        <CommandLine condition="contains">ping</CommandLine>
+                        <CommandLine condition="contains">netstat</CommandLine>
+                        <CommandLine condition="contains">nslookup</CommandLine>
+                        <CommandLine condition="contains">/dclist</CommandLine>            <!-- Detect a list of Domain Controllers "nltest.exe /dclist" -->
+                        <CommandLine condition="contains">quser</CommandLine>              <!-- Display information about all users logged on the system -->
+                        <CommandLine condition="contains">/download</CommandLine>
+                        <CommandLine condition="contains">-e</CommandLine>
+                        <CommandLine condition="contains">/c</CommandLine>
+                        <CommandLine condition="contains">-decode</CommandLine>
+                        <CommandLine condition="contains">-enc</CommandLine>
+                        <CommandLine condition="contains">/domain</CommandLine>
+                        <CommandLine condition="contains">/all</CommandLine>
+                        <CommandLine condition="contains">ls</CommandLine>
+                        <CommandLine condition="contains">pwd</CommandLine>
+                        <CommandLine condition="contains">dir</CommandLine>
+                        <CommandLine condition="contains">systeminfo.exe</CommandLine>                <!-- Detect execution of systeminfo.exe -->
+                        <CommandLine condition="contains">fsutil</CommandLine>                    
+                        <CommandLine condition="contains">fsinfo</CommandLine>                          
+                        <CommandLine condition="contains">net user</CommandLine>                  
+                        <CommandLine condition="contains">net group</CommandLine>
+                        <CommandLine condition="contains">net view</CommandLine>                  <!-- Detects the use of net view for network enumeration -->
+                        <CommandLine condition="contains">http://</CommandLine>
+                        <CommandLine condition="contains">https://</CommandLine>
+                        <CommandLine condition="contains">C:\Users\Public\Downloads\</CommandLine>
+                        <CommandLine condition="contains">C:\Users\*\Downloads\</CommandLine>
+                        <CommandLine condition="contains">/dev/video</CommandLine>                <!-- Detects processes interacting with video devices -->
+                        <CommandLine condition="contains">GetLastInputInfo</CommandLine>          <!-- Detects processes checking for user activity -->
+                        <CommandLine condition="contains">Invoke-WebRequest</CommandLine>         <!-- Detects PowerShell commands for web-based data collection -->
+                        <CommandLine condition="contains">Invoke-SMBExec</CommandLine>            <!-- Detects PowerShell commands for executing pass the hash method for lateral movement within an compromised environment -->
+                        <CommandLine condition="contains">Invoke-Kerberoast</CommandLine>
+                        <CommandLine condition="contains">cmd.exe /c</CommandLine>                <!-- Detects Command Prompt command execution -->
+                        <CommandLine condition="contains">powershell.exe -Command</CommandLine>   <!-- Detects PowerShell command execution -->
+                        <CommandLine condition="contains">bitsadmin.exe</CommandLine>             <!-- Detects the use of Bitsadmin for downloading files -->
+                        <CommandLine condition="contains">nmap</CommandLine>
+                        <CommandLine condition="contains">xp_cmdshell</CommandLine>               <!-- Spawns a Windows command shell and passes in a string for execution. Any output is returned as rows of text -->
+                        <CommandLine condition="contains">net user %temp%\download</CommandLine>
+                        <CommandLine condition="contains">/domain %temp\download</CommandLine>
+                        <CommandLine condition="contains">dir c:\ %temp%\download</CommandLine>
+                        <CommandLine condition="contains">dir "c:\Documents and Settings" %temp%\download</CommandLine>
+                        <CommandLine condition="contains">dir "c:\Program Files\" %temp%\download</CommandLine>
+                        <CommandLine condition="contains">dir d:\ %temp%\download</CommandLine>
+                        <CommandLine condition="contains">ren "%temp%\upload"</CommandLine>
+                        <CommandLine condition="contains">net localgroup administrator %temp%\download</CommandLine>
+                        <CommandLine condition="contains">ver %temp%\download</CommandLine>
+                        <CommandLine condition="contains">netstat -ano %temp%\download</CommandLine>
+                        <CommandLine condition="contains">net start %temp%\download</CommandLine>
+ 
+                     <Rule name="wscript.exe for JScript" groupRelation="and">
+                        <Image condition="contains">wscript.exe</Image>
+                        <CommandLine condition="contains">.js</CommandLine>   
+                        </Rule> 
+                     <Rule name="cscript.exe for JScript" groupRelation="and">
+                        <Image condition="contains">cscript.exe</Image>
+                        <CommandLine condition="contains">.js</CommandLine>   
+                        </Rule> 
+                     <Rule name="Permission Groups Discovery: Domain Groups" groupRelation="and">
+                        <Image condition="contains">net.exe</Image>
+                        <CommandLine condition="contains">group /domain</CommandLine>
+                        </Rule>
+                     <Rule name="Permission Groups Discovery: Domain Groups" groupRelation="and">
+                         <Image condition="contains">dsquery.exe</Image>
+                         <CommandLine condition="contains">group -domain</CommandLine>
+                         </Rule>
+                     <Rule name="Automated Collection" groupRelation="and">
+                         <Image condition="is">powershell.exe</Image>
+                         <ParentImage condition="is">explorer.exe</ParentImage>                  <!-- Detects PowerShell launched by Explorer -->
+                         </Rule>
+                     <Rule name="Automated Collection" groupRelation="and">
+                         <Image condition="is">cmd.exe</Image>
+                         <ParentImage condition="is">explorer.exe</ParentImage>                  <!-- Detects Command Prompt launched by Explorer -->
+                         </Rule>
+                     <Rule name="Exploitation for Privilege Escalation" groupRelation="and">
+                         <Image condition="is">powershell.exe</Image>
+                         <ParentImage condition="is">services.exe</ParentImage>                  <!-- Detects PowerShell launched by services.exe -->
+                         </Rule>
+                     <Rule name="Exploitation for Privilege Escalation" groupRelation="and">
+                         <Image condition="is">cmd.exe</Image>
+                         <ParentImage condition="is">services.exe</ParentImage>                  <!-- Detects Command Prompt launched by services.exe -->
+                         </Rule>
+                     <Rule name="Masquerading: Masquerade Task or Service" groupRelation="and">
+                         <Image condition="contains">taskeng.exe</Image>
+                         <ParentImage condition="is">svchost.exe</ParentImage>                   <!-- Detects if taskeng.exe is launched by svchost.exe -->
+                         </Rule>
+                     <Rule name="Masquerading: Masquerade Task or Service" groupRelation="and">  <!-- (Suspicious process creating a new process) -->
+                         <Image condition="contains">services.exe</Image>
+                         <ParentImage condition="is">svchost.exe</ParentImage>                   <!-- Detects if services.exe is launched by svchost.exe -->
+                         </Rule>
+                     <Rule name="Phishing: Spearphishing Attachment" groupRelation="and">
+                         <Image condition="contains">powershell.exe</Image>
+                         <ParentImage condition="contains">outlook.exe</ParentImage>             <!-- Detects PowerShell launched by Outlook -->
+                         </Rule>
+                     <Rule name="Phishing: Spearphishing Attachment" groupRelation="and">
+                         <Image condition="contains">mshta.exe</Image>
+                         <ParentImage condition="contains">outlook.exe</ParentImage>             <!-- Detects mshta.exe launched by Outlook -->
+                         </Rule>
+                     <Rule name="User Execution: Malicious File" groupRelation="and">
+                         <Image condition="end with">.exe</Image>
+                         <ParentImage condition="not end with">explorer.exe</ParentImage>        <!-- Excludes processes launched by Windows Explorer -->
+                         </Rule>
+                     <Rule name="User Execution: Malicious File" groupRelation="and">
+                         <Image condition="end with">.bat</Image>
+                         <ParentImage condition="not end with">explorer.exe</ParentImage>        <!-- Excludes processes launched by Windows Explorer -->
+                         </Rule>
+                     <Rule name="User Execution: Malicious File" groupRelation="and">
+                         <Image condition="end with">.ps1</Image>
+                         <ParentImage condition="not end with">explorer.exe</ParentImage>        <!-- Excludes processes launched by Windows Explorer -->  
+                         </Rule>            
+                     <Rule name="Command and Scripting Interpreter: Visual Basic" groupRelation="and">
+                         <Image condition="contains">cscript.exe</Image>                         <!-- Detects the use of cscript.exe for executing scripts -->
+                         <CommandLine condition="contains">.vbs</CommandLine>                    <!-- Detects command lines containing the .vbs file extension -->
+                         </Rule>
+                     <Rule name="Command and Scripting Interpreter: Visual Basic" groupRelation="and">
+                         <Image condition="contains">wscript.exe</Image>                         <!-- Detects the use of wscript.exe for executing scripts -->
+                         <CommandLine condition="contains">.vbs</CommandLine>                    <!-- Detects command lines containing the .vbs file extension -->
+                         </Rule>
+                     <Rule name="User Execution: Malicious File" groupRelation="and">
+                         <Image condition="end with">.ps1</Image>
+                         <ParentImage condition="is">powershell.exe</ParentImage>                <!-- Detects the use of .ps1 files created by powershell.exe -->
+                         </Rule>
+                    <Rule name="Essential NetTools" groupRelation="or">                         <!-- Essential NetTools is a set of network scanning, security, and administrator tools -->
+                         <Image condition="contains">procmon</Image>      
+                         <Image condition="contains any">traceroute;ping</Image>
+                         <Image condition="contains">portscan</Image>
+                         <Image condition="contains">nbscan</Image>
+                         <Image condition="contains">rawsocket</Image>
+                         <Image condition="contains">shares</Image>
+                         <Image condition="contains">netaudit</Image>
+                         <Image condition="contains">snmpaudit</Image>
+                         <Image condition="contains">sysfiles</Image>
+                         </Rule>  
+                    <Rule name="Empire" groupRelation="and">                                   <!-- Detects Empire tool -->
+                         <Image condition="is">powershell.exe</Image>
+                         <CommandLine condition="contains any">.ps1;.exe;.dll;.py;.sh;.jar;.c;.cpp;.go;.rb;.pl;.php;.bat;.cmd;.com;.sct;.js;.hta;.asp;.aspx;.cgi;.fcgi;.jsp;.class;.war;.ear;.phtml;.phar;.pht;.shtml;.stm;.stml;.msp;.msi;.cab;.msu;.inf;.sys;.vxd;.cpl;.clb;.ocx;.scr;.drv;.vb;.bas;.man;.pdb;.obj;.lib;.res;.rc;.dat;.db;.sqlite;.mdb;.accdb;.odb;.xlb;.xlt;.xlam;.xla;.xls;.xltm;.xltx;.xlsm;.xlsx;.dot;.dotm;.dotx;.docm;.doc;.docx;.rtf;.txt;.csv;.xlsb;.xlsx;.xlsm;.ppt;.pptm;.pptx;.pps;.ppsm;.ppsx;.pub;.pubx;.vsdx;.vsd;.vst;.vss;.vdx;.vtx;.vstx;.vdw;.vsdm;.vsdx;.vssm;.vsx;.vstm;.vstx;.vdw;.vdx;.vsd;.vss;.vst;.vsx;.vssm;.vssx;.vstm;.vstx;.vdw;.vsdx;.thmx;.one;.onepkg;.ost;.oft</CommandLine>
+                         </Rule>
+                    <Rule name="Impacket" groupRelation="and">                                 <!-- Detects Impacket tool -->
+                         <Image condition="contains">python.exe</Image>
+                         <CommandLine condition="contains">\impacket\</CommandLine>
+                         </Rule>
+                    <Rule name="Cobalt Strike" groupRelation="or">                             <!-- Detects Cobalt Strike tool -->
+                         <Image condition="contains">beacon.exe</Image>
+                         <Image condition="contains">teamserver.exe</Image> 
+                         </Rule>
+                    <Rule name="PowerSploit" groupRelation="and">                              <!-- Detects PowerSploit tool -->
+                         <Image condition="contains">powershell.exe</Image>
+                         <CommandLine condition="contains">PowerSploit</CommandLine>     
+                         </Rule>
+                    <Rule name="BUBBLEWRAP" groupRelation="or">                                <!-- Detects BubbleWrap backdoor --> 
+                         <Image condition="contains any">ea93e3209f56a069f8dbd210b4a1a9429ce76b761940f4ace743b79b67a7c9b6;ea93e3209f56a069f8dbd210b4a1a9429ce76b761940f4ace743b79b67a7c9b6_unpacked;ea93e3209f56a069f8dbd210b4a1a9429ce76b761940f4ace743b79b67a7c9b6;D76261BA3B624933A6EBB5DD73758DB4;LOWBALL-ea93e3209f56a069f8dbd210b4a1a9429ce76b761940f4ace743b79b67a7c9b6;78512e6b3b70f064ac3065d68d1405d305e815ce_time;exe.ex;d76261ba3b624933a6ebb5dd73758db4;dai_time.exe_;WMIADAP.exe;ff4Qp.msi</Image>     
+                         </Rule>
+                     <Rule name="PoisonIvy" groupRelation="or">
+                         <Image condition="contains any">VirusShare_9b1fa51bfdd33a5449efb1cf35cbc78e;aa;IfVzWS.ini</Image>
+                         </Rule>
+                    <Rule name="DarkComet" groupRelation="or">
+                         <Image condition="contains any">MSRSAAPP;MSRSAAP.EXE;5b46b6f5d46f1cfc42d8969d75c59e62.virus</Image>
+                         </Rule>
+                    <Rule name="Boot or Logon Autostart Execution T1547" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <CommandLine condition="contains">pnputil.exe  /add-driver </CommandLine>
+                         </Rule>    
+                    <Rule name="Command and Scripting Interpreter T1059" groupRelation="and">
+                         <ParentImage condition="is">powershell.exe</ParentImage>
+                         <ParentCommandLine condition="contains">Start-Process -FilePath \""C:\Program Files (x86)\AutoIt3\AutoIt3.exe\"</ParentCommandLine>
+                         </Rule>
+                    <Rule name="Data from Local System T1005" groupRelation="and">
+                         <ParentImage condition="is">powershell.exe</ParentImage>
+                         <ParentCommandLine condition="contains">New-Item -Type Directory $outputZip -ErrorAction Ignore -Force | Out-Null</ParentCommandLine>
+                         </Rule>               
+                    <Rule name="Domain Trust Discovery T1482" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <ParentCommandLine condition="contains">dsquery * -filter "(objectClass=trustedDomain)" -attr *</ParentCommandLine>
+                         </Rule>
+                    <Rule name="Domain Trust Discovery T1482" groupRelation="and">
+                         <ParentImage condition="is">powershell.exe</ParentImage>
+                         <ParentCommandLine condition="contains all">Get-NetDomainTrust;Get-NetForestTrust;Get-ADDomain;Get-ADGroupMember Administrators -Recursive</ParentCommandLine>
+                         </Rule>
+                    <Rule name="Valid Accounts: Default Accounts T1078.001" groupRelation="and">
+                         <ParentImage condition="is">cmd.exe</ParentImage>
+                         <ParentCommandLine condition="contains">net user guest /active:yes</ParentCommandLine>
+                         </Rule>                                
+
+                  </ProcessCreate>
+             </RuleGroup>
+   
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime, PreviousCreationUtcTime, User -->  
+<!-- EVENT ID 2 : FILE CREATION TIME CHANGED [FileCreateTime]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileCreateTime onmatch="include">
+                         <TargetFilename condition="contains">C:\Windows\System32\config</TargetFilename>        <!-- Detect permission changes in the Windows config directory -->
+
+                  </FileCreateTime>
+             </RuleGroup>   
+
+<!-- Data: Rulename, UtcTime, ProcessGuid, ProcessId, Image, User, Protocol, Initiated, SourceIsIpv6, SourceIp, SourceHostname, SourcePort, SourcePortName, DestinationIp, DestinationHostname, DestinationPort, DestinationPortName -->
+<!-- EVENT ID 3 : NETWORK CONNECTION DETECTED [NetworkConnect]-->
+
+               <RuleGroup groupRelation="or">
+                   <NetworkConnect onmatch="include">
+                         <DestinationHostname condition="contains">*.s3.amazonaws.com</DestinationHostname>
+                         <DestinationHostname condition="contains">*.googleapis.com</DestinationHostname>                         
+                         <DestinationPort condition="is">20</DestinationPort>
+                         <DestinationPort condition="is">21</DestinationPort>
+                         <DestinationPort condition="is">22</DestinationPort>
+                         <DestinationPort condition="is">25</DestinationPort>
+                         <DestinationPort condition="is">53</DestinationPort>
+                         <DestinationPort condition="is">80</DestinationPort>
+                         <DestinationPort condition="is">110</DestinationPort>           <!-- Detects connections to POP3 -->
+                         <DestinationPort condition="is">135</DestinationPort>           <!-- Detect connections to common ports used for service discovery -->
+                         <DestinationPort condition="is">137</DestinationPort>           <!-- Detect connections to common ports used for NetBIOS service enumeration -->
+                         <DestinationPort condition="is">138</DestinationPort>           <!-- Detect connections to common ports used for NetBIOS service enumeration -->  
+                         <DestinationPort condition="is">139</DestinationPort>           <!-- Detect connections to NetBIOS over TCP/IP -->
+                         <DestinationPort condition="is">143</DestinationPort>           <!-- Detects connections of management of email messages -->
+                         <DestinationPort condition="is">443</DestinationPort> 
+                         <DestinationPort condition="is">445</DestinationPort>           <!-- Detects connections to SMB/CIFS -->
+                         <DestinationPort condition="is">995</DestinationPort>           <!-- Detects connections to POP3S -->
+                         <DestinationPort condition="is">3128</DestinationPort>          <!-- Detects connections to common proxy ports (adjust port numbers as needed) -->
+                         <DestinationPort condition="is">3389</DestinationPort>          <!-- Detects connections to RDP -->
+                         <DestinationPort condition="is">5900</DestinationPort>
+                         <DestinationPort condition="is">5985</DestinationPort>          <!-- Detect connections to WinRM port -->
+                         <DestinationPort condition="is">8008</DestinationPort>          <!-- Rule to detect multi-hop proxy usage -->
+                         <DestinationPort condition="is">8080</DestinationPort>          <!-- Rule to detect multi-hop proxy usage -->
+                         <DestinationPort condition="contains any">9001;9030</DestinationPort>         <!-- Rule to detect traffic from TOR -->
+
+                         <DestinationIp condition="is">*</DestinationIp>
+
+                         <Image condition="contains">http://</Image>
+
+                         <SourcePort condition="contains any">9001;9030</SourcePort>     <!-- Rule to detect traffic from TOR --> 
+
+                         <SourceIp condition="is">127.0.0.1</SourceIp>                   <!-- Detect connections originating from the local system -->
+
+                     <Rule name="Encrypted Channel: Asymmetric Cryptography" groupRelation="and">
+                             <DestinationPort condition="is">*</DestinationPort>
+                             <Image condition="contains">openssl.exe</Image>             <!-- Detects the use of OpenSSL for cryptographic operations -->
+                             </Rule>
+
+
+                  </NetworkConnect>
+             </RuleGroup>
+
+<!-- Data UtcTime, State, Version, SchemaVersion -->
+<!-- EVENT ID 4 : SYSMON SERVICE STATE CHANGED [SysmonService]-->
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, User -->
+<!-- EVENT ID 5 : PROCESS TERMINATED [ProcessTerminate]-->
+
+               <RuleGroup groupRelation="or">
+                   <ProcessTerminate onmatch="include" />
+
+             </RuleGroup>   
+
+<!-- Data: RuleName, UtcTime, ImageLoaded, Hashes, Signed, Signature, SignatureStatus -->
+<!-- EVENT ID 6 : DRIVER LOADED [DriverLoad]-->
+
+               <RuleGroup groupRelation="or">
+                   <DriverLoad onmatch="include" />
+                                                  
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, ImageLoaded, FileVersion, Description, Product, Company, OriginalFileName, Hashes, Signed, Signature, SignatureStatus, User -->
+<!-- EVENT ID 7 : DLL (IMAGE) LOADED [ImageLoad]-->
+
+               <RuleGroup groupRelation="or">
+                   <ImageLoad onmatch="include">
+                         <Image condition="contains">exploit.dll</Image>                   <!-- Detects loading of suspicious exploit DLLs -->
+                         <Image condition="contains">win32k.sys</Image>                    <!-- Detects loading of the win32k.sys driver, which may be used for keylogging -->
+
+                         <ImageLoaded condition="contains">iiscrack.dll</ImageLoaded>
+                         <ImageLoaded condition="contains">debug.dll</ImageLoaded>
+                         <ImageLoaded condition="contains">injector.dll</ImageLoaded>
+
+                         <Signature condition="is">Not Signed</Signature>
+                         <Signature condition="contains">Unknown</Signature>
+                         <Signature condition="contains">Untrusted</Signature>
+                         <Signature condition="contains">Unsigned</Signature>
+
+                         <Signed condition="is">No</Signed>
+
+                     <Rule name="Lateral Tool Transfer" groupRelation="and">
+                         <OriginalFileName condition="is">*</OriginalFileName>
+                         <Image condition="contains">ADMIN$</Image>                       <!-- Detect loading of images from ADMIN$ share -->
+                         </Rule>
+
+                  </ImageLoad>
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, SourceProcessGuid, SourceProcessId, SourceImage, TargetProcessGuid, TargetProcessId, TargetImage, NewThreadId, StartAddress, StartModule, StartFunction, SourceUser, TargetUser -->
+<!-- EVENT ID 8 : REMOTE THREAD CREATED [CreateRemoteThread]-->
+
+               <RuleGroup groupRelation="or">
+                   <CreateRemoteThread onmatch="include">
+                         <SourceImage condition="is not">kernel32.dll</SourceImage>
+                         <SourceImage condition="contains">explorer.exe</SourceImage>
+                         <SourceImage condition="contains">svchost.exe</SourceImage>
+
+                  </CreateRemoteThread>
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, Device, User -->
+<!-- EVENT ID 9 : RAW DISK ACCESS [RawAccessRead]-->
+
+               <RuleGroup groupRelation="or">
+                   <RawAccessRead onmatch="include" />
+
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, SourceProcessGUID, SourceProcessId, SourceThreatId, SourceImage, TargetProcessGUID, TargetProcessId, TargetImage, GrantedAccess, CallTrace, SourceUser, TargetUser -->
+<!-- EVENT ID 10 : INTER-PROCESS ACCESS [ProcessAccess]-->
+
+               <RuleGroup groupRelation="or">
+                    <ProcessAccess onmatch="include">
+                        <SourceImage condition="contains">winlogon.exe</SourceImage>        <!-- Detects access to the Windows Logon process -->
+                        <SourceImage condition="contains">cmd.exe</SourceImage>
+
+                        <TargetImage condition="contains">lsass.exe</TargetImage>           <!-- Detects LSASS process being accessed -->    
+                        <TargetImage condition="contains">winlogon.exe</TargetImage>        <!-- Detects Windows Logon process being accessed -->
+                        <TargetImage condition="contains">explorer.exe</TargetImage>        <!-- Detects Explorer process being accessed -->
+
+
+                       <Rule name="Credentials from Password Stores" groupRelation="and">
+                             <SourceImage condition="contains">lsass.exe</SourceImage>
+                             <TargetImage condition="contains">dumpert.exe</TargetImage>    <!-- Detects access from suspicious tools like Mimikatz (dumpert.exe) to LSASS -->
+                             </Rule>
+                       <Rule name="Credentials from Password Stores" groupRelation="and">
+                             <SourceImage condition="contains">lsass.exe</SourceImage>
+                             <TargetImage condition="contains">mimikatz.exe</TargetImage>   <!-- Detects access from suspicious tools like Mimikatz to LSASS -->
+                             </Rule>
+                       <Rule name="Credentials from Web Browsers" groupRelation="and">
+                             <SourceImage condition="contains">chrome.exe</SourceImage>
+                             <TargetImage condition="contains">lsass.exe</TargetImage>      <!-- Detects access to the Local Security Authority Subsystem Service (LSASS) process -->
+                             </Rule>
+                       <Rule name="Credentials from Web Browsers" groupRelation="and">
+                             <SourceImage condition="contains">firefox.exe</SourceImage>
+                             <TargetImage condition="contains">lsass.exe</TargetImage>
+                             </Rule>
+                       <Rule name="Credentials from Web Browsers" groupRelation="and">
+                             <SourceImage condition="contains">edge.exe</SourceImage>
+                             <TargetImage condition="contains">lsass.exe</TargetImage>
+                             </Rule>
+                       <Rule name="Credentials from Web Browsers" groupRelation="and">
+                             <SourceImage condition="contains">brave.exe</SourceImage>
+                             <TargetImage condition="contains">lsass.exe</TargetImage>
+                             </Rule>
+                       <Rule name="OS Credential Dumping: LSASS Memory" groupRelation="and">
+                             <SourceImage condition="is">lsass.exe</SourceImage>
+                             <TargetImage condition="contains">memdump.exe</TargetImage>   <!-- Detects access to memory dumping tools -->    
+                             </Rule>  
+                        <Rule name="OS Credential Dumping: NTDS" groupRelation="and">
+                             <SourceImage condition="is">*</SourceImage>                   <!-- Specify suspicious access to the NTDS database -->
+                             <TargetImage condition="is">lsass.exe</TargetImage>           <!-- Detects process access events where a process accesses another process, specifically targeting the LSASS process-->
+                             </Rule>              
+
+                  </ProcessAccess>
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, TargetFilename. CreationUtcTime, User -->
+<!-- EVENT ID 11 : FILE CREATED [FileCreate]-->
+
+               <RuleGroup groupRelation="or">
+                    <FileCreate onmatch="include">
+                         <TargetFilename condition="is">%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\*</TargetFilename>                 <!-- Detects creation of files in the current user's startup folder -->
+                         <TargetFilename condition="is">%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Startup\*</TargetFilename>         <!-- Detects creation of files in the all users' startup folder -->
+                         <TargetFilename condition="end with">.lock</TargetFilename>                                                               <!-- Detects creation of files with common ransomware file extension -->
+                         <TargetFilename condition="end with">.txt</TargetFilename>                                                                <!-- Detects creation of ransom notes -->
+                         <TargetFilename condition="end with">.encrypted</TargetFilename>                                                          <!-- Detects creation of files with common encrypted file extension -->
+                         <TargetFilename condition="end with">.crypt</TargetFilename>                                                              <!-- Detects creation of files with common encrypted file extension -->
+                         <TargetFilename condition="end with">.cerber</TargetFilename>                                                             <!-- Detects creation of files with common ransomware file extension -->
+                         <TargetFilename condition="contains">.locked</TargetFilename>                                                             <!-- Detect creation of files with .locked extension -->
+                         <TargetFilename condition="contains">C:\Users\Public\*</TargetFilename>
+                         <TargetFilename condition="contains">%APPDATA%</TargetFilename>                        <!-- Detect file creation in application data directory -->
+                         <TargetFilename condition="contains">%LOCALAPPDATA%</TargetFilename>                   <!-- Detect file creation in local application data directory -->                     
+                         <TargetFilename condition="contains">%USERPROFILE%\Desktop\*</TargetFilename>
+                         <TargetFilename condition="contains">%USERPROFILE%\Documents\*</TargetFilename>
+                         <TargetFilename condition="contains">%USERPROFILE%\Downloads\*</TargetFilename>
+                         <TargetFilename condition="contains">%SYSTEMROOT%</TargetFilename>                     <!-- Detect file creation in Windows system directory -->
+                         <TargetFilename condition="is">%SYSTEMDRIVE%\*</TargetFilename>                        <!-- Detects creation of files on the system drive -->
+                         <TargetFilename condition="end with">.bin</TargetFilename>
+                         <TargetFilename condition="end with">.exe</TargetFilename>
+                         <TargetFilename condition="end with">.ps1</TargetFilename>
+                         <TargetFilename condition="end with">.bat</TargetFilename>
+                         <TargetFilename condition="end with">.dll</TargetFilename>
+                         <TargetFilename condition="end with">.doc</TargetFilename>
+                         <TargetFilename condition="end with">.xls</TargetFilename>
+                         <TargetFilename condition="end with">.dat</TargetFilename>
+                         <TargetFilename condition="end with">.enc</TargetFilename>                             <!-- Detects the creation of ENC files, which might be used for custom archiving -->
+                         <TargetFilename condition="contains">xcopy.exe</TargetFilename>                        <!-- Detects the use of xcopy.exe for file copying -->
+                         <TargetFilename condition="contains">robocopy.exe</TargetFilename>                     <!-- Detects the use of robocopy.exe for file copying -->
+                         <TargetFilename condition="end with">.png</TargetFilename>
+                         <TargetFilename condition="end with">.jpg</TargetFilename>
+                         <TargetFilename condition="end with">.msi</TargetFilename>                             <!-- Detects the creation of MSI installer files -->
+                         <TargetFilename condition="end with">.zip</TargetFilename>                             <!-- Detects the creation of ZIP files, which may be used for data collection -->
+                         <TargetFilename condition="end with">.tar</TargetFilename>                             <!-- Detects the creation of TAR files, which may be used for data collection -->
+                         <TargetFilename condition="end with">.7z</TargetFilename>                              <!-- Detects the creation of 7z files, which may be user for data collection -->
+                         <TargetFilename condition="end with">.rar</TargetFilename>                             <!-- Detects the creation of RAR files, which may be user for data collection -->
+                         <TargetFilename condition="end with">.tar.gz</TargetFilename>                          <!-- Detects the creation of tar.gz archives -->   
+                         <TargetFilename condition="contains">C:\Temp\</TargetFilename>                         <!-- Detects file creation events in the C:\Temp\ directory -->
+                         <TargetFilename condition="contains">C:\Users\Public\Downloads\</TargetFilename>       <!-- Detects file creation events in the Public Downloads directory -->
+                         <TargetFilename condition="contains">C:\ProgramData\</TargetFilename>                  <!-- Detects file creation events in the ProgramData directory -->
+                         <TargetFilename condition="contains">.asp</TargetFilename>                             <!-- Detect creation of ASP files (commonly used for web shells) -->
+                         <TargetFilename condition="contains">.php</TargetFilename>                             <!-- Detect creation of PHP files (commonly used for web shells) -->
+                         <TargetFilename condition="contains">%SystemRoot%\System32\wbem\Subscription</TargetFilename>           <!-- Detect creation of files in the WMI event subscription directory -->   
+                         <TargetFilename condition="contains">C:\ProgramData\Microsoft\Crypto\RSA\MachineKeys</TargetFilename>   <!-- Detect creation of files in the directory where machine-specific RSA keys are stored -->
+
+                  </FileCreate>
+             </RuleGroup>
+
+<!-- Data: RuleName, EventType, UtcTime, ProcessGuid, ProcessId, Image, TargetObject, User, Details, NewName -->             
+<!-- EVENT ID 12 & 13 & 14 : REGISTRY MODIFICATION [RegistryEvent]-->
+         <!--EVENT 12: "Registry object added or deleted"-->
+	     <!--EVENT 13: "Registry value set"-->
+	     <!--EVENT 14: "Registry objected renamed"-->
+
+               <RuleGroup groupRelation="or">
+                    <RegistryEvent onmatch="include">
+                         <TargetObject condition="contains">HKLM\System\CurrentControlSet\Services\DNS\Parameters\</TargetObject>
+                         <TargetObject condition="contains">HKLM\System\CurrentControlSet\Services\HTTP\Parameters\SslBindingInfo</TargetObject>
+                         <TargetObject condition="contains">HKLM\System\CurrentControlSet\Services\HTTP\Parameters\UrlAclInfo</TargetObject>
+                         <TargetObject condition="contains">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</TargetObject>                      <!-- Detects modification of the local machine's registry run key -->
+                         <TargetObject condition="contains">HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</TargetObject>                      <!-- Detects modification of the current user's registry run key -->     
+                         <TargetObject condition="contains">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce</TargetObject>
+                         <TargetObject condition="contains">HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce</TargetObject>
+                         <TargetObject condition="contains">HKLM\System\CurrentControlSet\Services\</TargetObject>
+                         <TargetObject condition="contains">Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles</TargetObject>      <!-- Detects modification of Outlook profiles -->
+                         <TargetObject condition="contains">Software\Microsoft\Office</TargetObject>                                                              <!-- Detects modification of Office-related registry keys -->
+                         <TargetObject condition="contains">AppEvents\EventLabels\SecurityChange</TargetObject>                                                   <!-- Detects modification of the AppEvents\Security\Impersonate registry key -->
+                         <TargetObject condition="contains">SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Hidden</TargetObject>                     <!-- Detect changes to Hidden registry settings -->
+                         <TargetObject condition="contains">HKLM\SYSTEM\CurrentControlSet\Control\ComputerName</TargetObject>                                     <!-- Detect access to registry keys related to computer name -->
+                         <TargetObject condition="contains">HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</TargetObject>                                <!-- Detect access to registry keys related to TCP/IP parameters -->
+                         <TargetObject condition="contains">HKLM\SYSTEM\CurrentControlSet\Services\NetBT\Parameters</TargetObject>                                <!-- Detect access to registry keys related to NetBIOS parameters --> 
+                         <TargetObject condition="contains">HKLM\SYSTEM\CurrentControlSet\Control\Lsa</TargetObject>                                              <!-- Detect access to LSA registry keys -->
+                         <TargetObject condition="contains">System\CurrentControlSet\Services\Eventlog</TargetObject>                                             <!-- Detect modifications to event log registry keys -->
+                         <TargetObject condition="contains">HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment</TargetObject>                      <!-- Detect modifications to specific registry keys -->
+                         <TargetObject condition="contains">HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall</TargetObject>                               <!-- Detect access to registry keys related to installed software -->
+                         <TargetObject condition="contains">HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run\hosts</TargetObject>     <!-- Detect if there are any persistence -->
+
+                  </RegistryEvent>
+             </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime, Hash, Contents, User -->
+<!-- EVENT ID 15 : ALTERNATE DATA STREAM CREATED [FileCreateStreamHash]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileCreateStreamHash onmatch="include">
+                         <TargetFilename condition="contains">C:\Users\*\AppData\Roaming\*</TargetFilename>
+                         <TargetFilename condition="contains">C:\Users\*\Documents\*</TargetFilename>
+                         <TargetFilename condition="contains">AAAAAAAAAAAAAAAAAAAAAAAAAA</TargetFilename>       <!-- Detects files with suspicious padding in the content (You can adjust the pattern based on known or suspected padding techniques observed in your environment.)-->
+                         <TargetFilename condition="contains">D:</TargetFilename>                               <!-- Detects file creation on the D: drive (replace with appropriate drive letter) -->
+                         <TargetFilename condition="contains">C:\Users\Public\</TargetFilename>                 <!-- Detects file creation in the Public directory (replace with appropriate directory) -->
+                         <TargetFilename condition="contains">C:\Windows\Temp\</TargetFilename>
+                         <TargetFilename condition="contains">%USERPROFILE%</TargetFilename>                    <!-- Detect data manipulation in user profile directory -->
+                         <TargetFilename condition="contains">%SYSTEMROOT%</TargetFilename>                     <!-- Detect data manipulation in Windows system directory -->                 
+                         <TargetFilename condition="contains">system.ini</TargetFilename>
+                         <TargetFilename condition="contains">C:\Windows\System32\drivers\etc</TargetFilename>                       
+
+                  </FileCreateStreamHash>
+             </RuleGroup>
+
+<!-- Data: UtcTime, Configuration, ConfigurationFileHash -->
+<!-- EVENT ID 16 : SYSMON CONFIGURATION CHANGE--> 
+               
+                    
+<!-- Data: RuleName, EventType, UtcTime, ProcessGuid, ProcessId, PipeName, Image, User -->
+<!-- EVENT ID 17 & 18 : PIPE CREATED / PIPE CONNECTED [PipeEvent]-->
+         <!--EVENT 17: "Pipe Created"-->
+	     <!--EVENT 18: "Pipe Connected"-->
+
+               <RuleGroup groupRelation="or">
+                   <PipeEvent onmatch="include">
+                         <PipeName condition="contains">\\.\pipe\DDE</PipeName>
+                         <PipeName condition="contains">\\.\pipe\RPC Control\DDE</PipeName>
+                         <PipeName condition="contains">\.\root\</PipeName>                             <!-- Detects WMI activity -->
+                         <PipeName condition="contains">wmiprvse.exe</PipeName>                         <!-- Detects WMI activity by wmiprvse.exe -->
+                         <PipeName condition="contains">winmgmt.exe</PipeName>                          <!-- Detects WMI activity by winmgmt.exe -->
+                         <PipeName condition="contains">\pipe\winmgmt</PipeName>                        <!-- Detects connections to the WMI named pipe -->
+                         <PipeName condition="contains">\pipe\epmapper</PipeName>                       <!-- Detects connections to the endpoint mapper named pipe -->
+                         
+                  </PipeEvent>
+             </RuleGroup>
+
+<!-- Data: RuleName, EventType, UtcTime, Operation, User, EventNamespace, Name, Query, Type, Destination, Consumer, Filter -->
+<!-- EVENT ID 19 & 20 & 21 : WMI EVENT MONITORING [WmiEvent]-->
+         <!--EVENT 19: "WmiEventFilter activity detected"-->
+	     <!--EVENT 20: "WmiEventConsumer activity detected"-->
+	     <!--EVENT 21: "WmiEventConsumerToFilter activity detected"-->
+
+               <RuleGroup groupRelation="or">
+                   <WmiEvent onmatch="include" />
+    
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, QueryName, QueryResults, Image, User -->
+<!-- EVENT ID 22 : DNS QUERY [DnsQuery]-->
+
+               <RuleGroup groupRelation="or">
+                   <DnsQuery onmatch="include">
+                         <QueryName condition="is">*</QueryName>
+                         <QueryName condition="end with">.invalid</QueryName>                  <!-- Detects DNS queries to invalid TLDs, which may indicate domain generation algorithm (DGA) activity -->
+                  
+                  </DnsQuery>
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes, IsExecutable, Archived -->
+<!-- EVENT ID 23 : FILE DELETE [FileDelete]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileDelete onmatch="include">
+                         <TargetFilename condition="contains">.exe</TargetFilename>            <!-- Detects deletion of executable files -->
+                         <TargetFilename condition="contains">.pst</TargetFilename>            <!-- Detects deletion of Outlook PST files -->
+                         <TargetFilename condition="contains">.ost</TargetFilename>            <!-- Detects deletion of Outlook OST files -->
+                         
+                  </FileDelete>
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, Image, Session, ClientInfo, Hashes, Archived, User -->
+<!-- EVENT ID 24 : CLIPBOARD CHANGE [ClipboardChange]-->
+
+               <RuleGroup groupRelation="or">
+                   <ClipboardChange onmatch="include" />
+
+              </RuleGroup>
+
+<!-- RuleName, UtcTime, ProcessGuid, ProcessId, Image, Type, User -->
+<!-- EVENT ID 25 : PROCESS TAMPERING [ProcessTampering]-->
+
+               <RuleGroup groupRelation="or">
+                   <ProcessTampering onmatch="include" />
+
+              </RuleGroup> 
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes, IsExecutable -->
+<!-- EVENT ID 26 : FILE DELETE AND OVERWRITE [FileDeleteDetected]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileDeleteDetected onmatch="include">
+
+                       <Rule groupRelation="and">
+                             <TargetFilename condition="contains all">C:\PS-Transcripts\;PowerShell_transcript</TargetFilename>
+                             <TargetFilename condition="contains">.txt</TargetFilename>
+                             </Rule>
+                       <Rule groupRelation="and">
+                             <TargetFilename condition="contains">\Downloads\</TargetFilename>
+                             <TargetFilename condition="contains any">.com;.bat;.exe;.reg;.ps1;.vbs;.vba;.lnk;.doc;.xls;.hta;.bin;.7z;.dll;.xla;.cmd;.sh;.lnk;.pptm;.scr;.msi;.sct</TargetFilename>
+                             </Rule>
+                       <Rule groupRelation="and">
+                             <TargetFilename condition="contains">\Appdata\Local\Temp\</TargetFilename>
+                             <TargetFilename condition="contains any">.com;.bat;.exe;.reg;.ps1;.vbs;.vba;.lnk;.doc;.xls;.hta;.bin;.7z;.dll;.xla;.cmd;.sh;.lnk;.pptm;.scr;.msi;.sct</TargetFilename>
+                             </Rule>
+                       <Rule groupRelation="and">
+                             <TargetFilename condition="begin with">C:\Windows\Tasks</TargetFilename>
+                             <TargetFilename condition="contains any">.com;.bat;.exe;.reg;.ps1;.vbs;.vba;.lnk;.doc;.xls;.hta;.bin;.7z;.dll;.xla;.cmd;.sh;.lnk;.pptm;.scr;.msi;.sct</TargetFilename>
+                             </Rule>
+                       <Rule groupRelation="and">
+                             <TargetFilename condition="begin with">C:\Windows\System32\Tasks</TargetFilename>
+                             <TargetFilename condition="contains any">.com;.bat;.exe;.reg;.ps1;.vbs;.vba;.lnk;.doc;.xls;.hta;.bin;.7z;.dll;.xla;.cmd;.sh;.lnk;.pptm;.scr;.msi;.sct</TargetFilename>
+                             </Rule>
+                       <Rule groupRelation="and">
+                             <TargetFilename condition="begin with">C:\Windows\SysWOW64\Tasks</TargetFilename>
+                             <TargetFilename condition="contains any">.com;.bat;.exe;.reg;.ps1;.vbs;.vba;.lnk;.doc;.xls;.hta;.bin;.7z;.dll;.xla;.cmd;.sh;.lnk;.pptm;.scr;.msi;.sct</TargetFilename>
+                             </Rule>                    
+
+                
+                </FileDeleteDetected>
+              </RuleGroup> 
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes -->
+<!-- EVENT ID 27 : FILE BLOCK EXECUTABLE AND OVERWRITE [FileBlockExecutable]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileBlockExecutable onmatch="include" />
+
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes, IsExecutable -->
+<!-- EVENT ID 28 : FILEBLOCK SHREDDING [FileBlockShredding]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileBlockShredding onmatch="include" />
+
+              </RuleGroup>
+
+<!-- Data: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes -->
+<!-- EVENT ID 29 : FILE EXECUTABLE DETECTED : [FileExecutableDetected]-->
+
+               <RuleGroup groupRelation="or">
+                   <FileExecutableDetected onmatch="include" />
+                            
+              </RuleGroup>    
+                          
+
+    </EventFiltering>
+</Sysmon>                     
