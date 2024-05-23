@@ -22,7 +22,7 @@ Feel free to adjust and customize this description to better fit your specific r
 - Update configuration:`sysmon.exe -c <configfile>`
 - Install event manifest:`sysmon.exe -m`
 - Print Schema:`sysmon.exe -s`
-- Uninstall:`sysmon.exe -u [force]
+- Uninstall:`sysmon.exe -u [force]`
 
 ## Examples
 Install with default settings (process images hashed with SHA1 and no network monitoring)
